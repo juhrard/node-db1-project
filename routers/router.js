@@ -29,6 +29,7 @@ router.get("/:id", (req, res) => {
 });
 
 router.post("/", (req, res) => {
+  console.log(req.body);
   db("accounts")
     .insert(req.body, "id")
     .then(ids => {
@@ -44,27 +45,25 @@ router.post("/", (req, res) => {
 });
 
 router.put("/:id", (req, res) => {
-  // update a account
   const id = req.params.id;
-  const changes = req.body;
   db("accounts")
-    .where({ id }) // remember to filter or all records will be updated (BAD PANDA!!)
-    .update(changes) // could be partial changes, only one column is enough
+    .where({ id })
+    .update(req.body)
     .then(count => {
-      res.status(200).json(count);
+      return getById(id).then(account => {
+        res.status(200).json(account);
+      });
     })
     .catch(error => {
       console.log(error);
-
       res.status(500).json({ error: "failed to update the account" });
     });
 });
 
 router.delete("/:id", (req, res) => {
-  // removes a account
   const id = req.params.id;
   db("accounts")
-    .where({ id }) // remember to filter or all records will be deleted (BAD PANDA!!)
+    .where({ id })
     .del()
     .then(count => {
       res.status(200).json(count);
